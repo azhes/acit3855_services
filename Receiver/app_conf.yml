@@ -1,0 +1,9 @@
+version: 1
+posttrade:
+  url: http://localhost:8090/posttrade
+accepttrade:
+  url: http://localhost:8090/accepttrade
+events:
+  hostname: acit3855kafka.westus3.cloudapp.azure.com
+  port: 9092
+  topic: events

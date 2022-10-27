@@ -1,0 +1,142 @@
+---
+openapi: 3.0.0
+info:
+  title: pokeTrade
+  description: This API receives events from pokemon trades, including posting an trade and accepting a trade.
+  contact:
+    email: agraystone@bcit.ca
+  version: 1.0.0
+servers:
+- url: http://localhost:8090
+tags:
+- name: postTrade
+  description: Operations available for posting a trade
+- name: acceptTrade
+  description: Operations available for accepting a trade
+paths:
+  /posttrade:
+    get:
+      tags:
+        - postTrade
+      summary: gets new trade posts
+      operationId: app.get_posted_trades
+      description: Gets posted trades added after a timestamp
+      parameters:
+        - name: timestamp
+          in: query
+          description: limits the number of items on a page
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Successfully returned a list of trade post events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PostTrade'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+  /accepttrade:
+    get:
+      tags:
+        - acceptTrade
+      summary: gets new trade accepts
+      operationId: app.get_accepted_trades
+      description: Gets accepted trades added after a timestamp
+      parameters:
+        - name: timestamp
+          in: query
+          description: limits the number of items on a page
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Successfully returned a list of trade accept events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AcceptTrade'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+components:
+  schemas:
+    PostTrade:
+      required:
+      - pokemon_happiness
+      - pokemon_level
+      - pokemon_to_trade
+      - trade_accepted
+      - trade_id
+      - pokemon_def
+      - pokemon_speed
+      - trace_id
+      type: object
+      properties:
+        trade_id:
+          type: integer
+        pokemon_to_trade:
+          type: string
+          example: Pikachu
+        pokemon_level:
+          type: integer
+        pokemon_happiness:
+          type: integer
+        trade_accepted:
+          type: string
+        pokemon_def:
+          type: integer
+        pokemon_speed:
+          type: integer
+        trace_id:
+          type: integer
+    AcceptTrade:
+      required:
+      - pokemon_atk
+      - pokemon_happiness
+      - pokemon_hp
+      - pokemon_level
+      - pokemon_to_accept
+      - accepted_trade_id
+      - username
+      - trace_id
+      type: object
+      properties:
+        accepted_trade_id:
+          type: integer
+        username:
+          type: string
+          example: example123
+        pokemon_to_accept:
+          type: string
+          example: Bulbasaur
+        pokemon_level:
+          type: integer
+        pokemon_happiness:
+          type: string
+        pokemon_hp:
+          type: integer
+        pokemon_atk:
+          type: integer
+        trace_id:
+          type: integer
+

@@ -1,0 +1,6 @@
+2022-10-26 17:06:13,102 - basicLogger - INFO - Retrieving posted trade at 0
+2022-10-26 17:06:13,155 - basicLogger - ERROR - No more messages found
+2022-10-26 17:06:13,155 - basicLogger - ERROR - could not find a posted trade at index 0
+2022-10-27 08:25:46,123 - basicLogger - INFO - Retrieving posted trade at 0
+2022-10-27 08:25:46,167 - basicLogger - ERROR - No more messages found
+2022-10-27 08:25:46,169 - basicLogger - ERROR - could not find a posted trade at index 0

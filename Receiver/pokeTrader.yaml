@@ -1,0 +1,110 @@
+---
+openapi: 3.0.0
+info:
+  title: pokeTrade
+  description: This API receives events from pokemon trades, including posting an trade and accepting a trade.
+  contact:
+    email: agraystone@bcit.ca
+  version: 1.0.0
+servers:
+- url: http://localhost:8080
+tags:
+- name: postTrade
+  description: Operations available for posting a trade
+- name: acceptTrade
+  description: Operations available for accepting a trade
+paths:
+  /posttrade:
+    post:
+      tags:
+      - postTrade
+      summary: posts a pokemon trade
+      description: |
+        Adds a new pokemon trade to the system
+      operationId: app.post_trade
+      requestBody:
+        description: Trade to post
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostTrade'
+      responses:
+        "201":
+          description: item created
+        "400":
+          description: invalid input, object invalid
+  /accepttrade:
+    post:
+      tags:
+      - acceptTrade
+      summary: accepts a pokemon trade
+      description: |
+        Accepts a pokemon trade
+      operationId: app.accept_trade
+      requestBody:
+        description: Trade to accept
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AcceptTrade'
+      responses:
+        "201":
+          description: item created
+        "400":
+          description: invalid input, object invalid
+components:
+  schemas:
+    PostTrade:
+      required:
+      - pokemon_happiness
+      - pokemon_level
+      - pokemon_to_trade
+      - trade_accepted
+      - trade_id
+      - pokemon_def
+      - pokemon_speed
+      type: object
+      properties:
+        trade_id:
+          type: integer
+        pokemon_to_trade:
+          type: string
+          example: Pikachu
+        pokemon_level:
+          type: integer
+        pokemon_happiness:
+          type: integer
+        trade_accepted:
+          type: string
+        pokemon_def:
+          type: integer
+        pokemon_speed:
+          type: integer
+    AcceptTrade:
+      required:
+      - pokemon_atk
+      - pokemon_happiness
+      - pokemon_hp
+      - pokemon_level
+      - pokemon_to_accept
+      - accepted_trade_id
+      - username
+      type: object
+      properties:
+        accepted_trade_id:
+          type: integer
+        username:
+          type: string
+          example: example123
+        pokemon_to_accept:
+          type: string
+          example: Bulbasaur
+        pokemon_level:
+          type: integer
+        pokemon_happiness:
+          type: string
+        pokemon_hp:
+          type: integer
+        pokemon_atk:
+          type: integer
+

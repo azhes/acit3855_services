@@ -1,0 +1,6 @@
+connexion
+swagger-ui-bundle
+APScheduler
+sqlalchemy
+pyyaml
+requests

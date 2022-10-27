@@ -4,3 +4,4 @@ APScheduler
 sqlalchemy
 pyyaml
 requests
+mysql-connector-python

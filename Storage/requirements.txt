@@ -1,0 +1,8 @@
+swagger-ui-bundle
+connexion
+pymysql
+sqlalchemy
+pykafka
+mysql-connector-python
+pyyaml
+requests

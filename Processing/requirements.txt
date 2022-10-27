@@ -5,3 +5,4 @@ sqlalchemy
 pyyaml
 requests
 mysql-connector-python
+pymysql

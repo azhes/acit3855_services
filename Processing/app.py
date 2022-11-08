@@ -16,6 +16,7 @@ from base import Base
 from post_trade import PostTrade
 from accept_trade import AcceptTrade
 from stats import Stats
+from flask_cors import CORS, cross_origin
 
 import requests
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -142,6 +143,8 @@ def init_scheduler():
     sched.start()
 
 app = connexion.FlaskApp(__name__, specification_dir='')
+CORS(app.app)
+app.app.config['CORS_HEADERS'] = 'Content-Type'
 app.add_api('pokeTrader.yaml', strict_validation=True, validate_responses=True)
 
 if __name__ == '__main__':

@@ -3,3 +3,4 @@ swagger-ui-bundle
 requests
 pykafka
 pyyaml
+flask-cors

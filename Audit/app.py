@@ -7,6 +7,7 @@ import logging
 import logging.config
 from pykafka import KafkaClient
 from pykafka.common import OffsetType
+from flask_cors import CORS, cross_origin
 
 with open('app_conf.yml', 'r') as f:
     app_config = yaml.safe_load(f.read())
@@ -82,6 +83,8 @@ def get_accepted_trade(index):
     return {"message": "Not Found"}, 404
 
 app = connexion.FlaskApp(__name__, specification_dir='')
+CORS(app.app)
+app.app.config['CORS_HEADERS'] = 'Content-Type'
 app.add_api('pokeTrader.yaml', strict_validation=True, validate_responses=True)
 
 if __name__ == '__main__':

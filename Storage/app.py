@@ -150,7 +150,25 @@ def process_messages():
         try:
             client = KafkaClient(hosts=hostname)
             topic = client.topics[str.encode(kafka_topic)]
-            retry_count += 1
+            consumer = topic.get_simple_consumer(consumer_group=b'event_group',
+                                        reset_offset_on_start=False,
+                                        auto_offset_reset=OffsetType.LATEST)
+
+            # This is blocking - it will wait for a new message
+            for msg in consumer:
+                msg_str = msg.value.decode('utf-8')
+                msg = json.loads(msg_str)
+                logger.info(f'Message: {msg}')
+
+                payload = msg['payload']
+                logger.info(f'Payload: {payload}')
+
+                if msg['type'] == "posted_trade":
+                    post_trade(payload)
+                elif msg['type'] == "accepted_trade":
+                    accept_trade(payload)
+
+                consumer.commit_offsets()
         except:
             logger.error(f'Connection failed.')
             time.sleep(sleep_sec)
@@ -161,25 +179,7 @@ def process_messages():
     # (uncommitted mesages) when the service re-starts (i.e., it doesn't
     #  read all the old messages from the history in the message queue).
 
-    consumer = topic.get_simple_consumer(consumer_group=b'event_group',
-                                        reset_offset_on_start=False,
-                                        auto_offset_reset=OffsetType.LATEST)
-
-    # This is blocking - it will wait for a new message
-    for msg in consumer:
-        msg_str = msg.value.decode('utf-8')
-        msg = json.loads(msg_str)
-        logger.info(f'Message: {msg}')
-
-        payload = msg['payload']
-        logger.info(f'Payload: {payload}')
-
-        if msg['type'] == "posted_trade":
-            post_trade(payload)
-        elif msg['type'] == "accepted_trade":
-            accept_trade(payload)
-
-        consumer.commit_offsets()
+    
 
 app = connexion.FlaskApp(__name__, specification_dir='')
 app.add_api('pokeTrader.yaml', strict_validation=True, validate_responses=True)

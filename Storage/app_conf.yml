@@ -5,6 +5,8 @@ datastore:
   hostname: acit3855kafka.westus3.cloudapp.azure.com
   port: 3306
   db: events
+  retries: 99
+  sleep: 5
 events:
   hostname: acit3855kafka.westus3.cloudapp.azure.com
   port: 9092

@@ -19,7 +19,10 @@ from base import Base
 from post_trade import PostTrade
 from accept_trade import AcceptTrade
 
+from pykafka.exceptions import SocketDisconnectedError, LeaderNotAvailable
+
 import requests
+import time
 
 with open('app_conf.yml', 'r') as f:
     app_config = yaml.safe_load(f.read())
@@ -32,6 +35,8 @@ db = app_config['datastore']['db']
 kafka_hostname = app_config['events']['hostname']
 kafka_port = app_config['events']['port']
 kafka_topic = app_config['events']['topic']
+retries = app_config['datastore']['retries']
+sleep_sec = app_config['datastore']['sleep']
 
 DB_ENGINE = create_engine(f'mysql+pymysql://{user}:{password}@{hostname}:{port}/{db}')
 DB_SESSION = sessionmaker(bind=DB_ENGINE)
@@ -138,8 +143,18 @@ def process_messages():
     """ Process event messages """
 
     hostname = f'{kafka_hostname}:{kafka_port}'
-    client = KafkaClient(hosts=hostname)
-    topic = client.topics[str.encode(kafka_topic)]
+
+    retry_count = 0
+    while retry_count < retries:
+        logger.info(f'Trying to connect to Kafka. Retries: {retry_count}')
+        try:
+            client = KafkaClient(hosts=hostname)
+            topic = client.topics[str.encode(kafka_topic)]
+        except (SocketDisconnectedError, LeaderNotAvailable) as e:
+            logger.error(f'Connection failed.')
+            time.sleep(sleep_sec)
+            retry_count += 1
+
 
     # Create a consume on a consumer group, that only reads new messages
     # (uncommitted mesages) when the service re-starts (i.e., it doesn't

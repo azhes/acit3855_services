@@ -9,6 +9,22 @@ import logging
 import logging.config
 import random
 from pykafka import KafkaClient
+import time
+
+def create_kafka_connection():
+    app_config, logger, kafka_server, kafka_port, kafka_topic, retries, sleep_sec = load_config()
+
+    retry_count = 0
+    while retry_count < retries:
+        logger.info(f'Trying to connect to Kafka. Retries: {retry_count}')
+        try:
+            client = KafkaClient(hosts=f'{kafka_server}:{kafka_port}')
+            topic = client.topics[str.encode(kafka_topic)]
+            return client, topic
+        except:
+            logger.error(f'Connection failed.')
+            time.sleep(sleep_sec)
+            retry_count += 1
 
 def load_config():
 
@@ -27,7 +43,11 @@ def load_config():
 
     topic = app_config['events']['topic']
 
-    return app_config, logger, kafka_server, kafka_port, topic
+    retries = app_config['events']['retries']
+
+    sleep_sec = app_config['events']['sleep']
+
+    return app_config, logger, kafka_server, kafka_port, topic, retries, sleep_sec
 
 def post_trade(body):
 
@@ -41,8 +61,7 @@ def post_trade(body):
 
     logger.info(f'Received event post_trade request with a trace id of {trace_id}')
 
-    client = KafkaClient(hosts=f'{kafka_server}:{kafka_port}')
-    topic = client.topics[str.encode(kafka_topic)]
+    client, topic = create_kafka_connection()
     producer = topic.get_sync_producer()
     msg = {"type": "posted_trade",
             "datetime": datetime.now().strftime("%Y-%m-%dT%H:%M:%S"),
@@ -66,8 +85,7 @@ def accept_trade(body):
 
     logger.info(f'Received event accept_trade request with a trace id of {trace_id}')
 
-    client = KafkaClient(hosts=f'{kafka_server}:{kafka_port}')
-    topic = client.topics[str.encode(kafka_topic)]
+    client, topic = create_kafka_connection()
     producer = topic.get_sync_producer()
     msg = {"type": "accepted_trade",
             "datetime": datetime.now().strftime("%Y-%m-%dT%H:%M:%S"),

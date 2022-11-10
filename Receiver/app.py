@@ -51,7 +51,7 @@ def load_config():
 
 def post_trade(body):
 
-    app_config, logger, kafka_server, kafka_port, kafka_topic = load_config()
+    app_config, logger, kafka_server, kafka_port, topic, retries, sleep_sec = load_config()
 
     post_trade_url = app_config['posttrade']['url']
 
@@ -75,7 +75,7 @@ def post_trade(body):
 
 def accept_trade(body):
 
-    app_config, logger, kafka_server, kafka_port, kafka_topic = load_config()
+    app_config, logger, kafka_server, kafka_port, topic, retries, sleep_sec = load_config()
 
     accept_trade_url = app_config['accepttrade']['url']
 

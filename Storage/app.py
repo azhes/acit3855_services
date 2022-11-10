@@ -150,6 +150,7 @@ def process_messages():
         try:
             client = KafkaClient(hosts=hostname)
             topic = client.topics[str.encode(kafka_topic)]
+            retry_count += 1
         except:
             logger.error(f'Connection failed.')
             time.sleep(sleep_sec)

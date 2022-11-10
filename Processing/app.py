@@ -56,7 +56,8 @@ def get_stats():
     stats_dict = {'num_posted_trades': current_statistics.num_posted_trades,
                 'num_accepted_trades': current_statistics.num_accepted_trades,
                 'max_posted_trades_level': current_statistics.max_posted_trades_level,
-                'max_accepted_trades_happiness': current_statistics.max_accepted_trades_happiness}
+                'max_accepted_trades_happiness': current_statistics.max_accepted_trades_happiness,
+                'last_updated': current_statistics.last_updated}
 
     logger.info(f'Request has completed')
 

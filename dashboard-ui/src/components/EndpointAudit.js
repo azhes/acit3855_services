@@ -8,10 +8,10 @@ export default function EndpointAudit(props) {
 	const rand_val = Math.floor(Math.random() * 100); // Get a random event from the event store
 
     const getAudit = () => {
-        fetch(`http://acit3855kafka.westus3.cloudapp.azure.com:8110?index=${rand_val}`)
+        fetch(`http://acit3855kafka.westus3.cloudapp.azure.com:8110/posttrade?index=${rand_val}`)
             .then(res => res.json())
             .then((result)=>{
-				console.log("Received Audit Results for " + props.endpoint)
+				console.log("Received Audit Results for " + "posttrade")
                 setLog(result);
                 setIsLoaded(true);
             },(error) =>{

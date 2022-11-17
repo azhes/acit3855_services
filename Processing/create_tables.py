@@ -2,7 +2,7 @@ import sqlite3
 
 def create_tables():
 
-    conn = sqlite3.connect('data.sqlite')
+    conn = sqlite3.connect('/data/data.sqlite')
 
     c = conn.cursor()
     c.execute('''

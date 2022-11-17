@@ -47,7 +47,8 @@ def get_posted_trade(index):
             msg_json = json.loads(msg_str)
 
             # Find the event at the index you want and return code 200
-            return msg_json, 200
+            if msg == consumer[index]:
+                return msg_json, 200
     except:
         logger.error("No more messages found")
 

@@ -15,7 +15,6 @@ from threading import Thread
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy import and_
 from base import Base
 from post_trade import PostTrade
 from accept_trade import AcceptTrade
@@ -74,16 +73,13 @@ def post_trade(body):
 
     logger.info(f'Stored event post_trade request with a trace id of {trace_id}')
 
-def get_posted_trades(start_timestamp, end_timestamp):
+def get_posted_trades(timestamp):
     # Gets new posted trades after the timestamp
     session = DB_SESSION()
 
-    start_timestamp_datetime = datetime.strptime(start_timestamp, "%Y-%m-%dT%H:%M:%SZ")
-    end_timestamp_datetime = datetime.strptime(end_timestamp, "%Y-%m-%dT%H:%M:%SZ")
+    timestamp_datetime = datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%SZ")
 
-    trades = session.query(PostTrade).filter(
-        and_(PostTrade.date_created >= start_timestamp_datetime,
-            PostTrade.date_created < end_timestamp_datetime))
+    trades = session.query(PostTrade).filter(PostTrade.date_created >= timestamp_datetime)
 
     results_list = []
 
@@ -92,7 +88,7 @@ def get_posted_trades(start_timestamp, end_timestamp):
 
     session.close()
 
-    logger.info("Query for Posted Trades after %s returns %d results" %(start_timestamp, len(results_list)))
+    logger.info("Query for Posted Trades after %s returns %d results" %(timestamp, len(results_list)))
 
     return results_list, 200
 
@@ -124,16 +120,13 @@ def accept_trade(body):
 
     logger.info(f'Stored event accept_trade request with a trace id of {trace_id}')
 
-def get_accepted_trades(start_timestamp, end_timestamp):
+def get_accepted_trades(timestamp):
     # Gets new posted trades after the timestamp
     session = DB_SESSION()
 
-    start_timestamp_datetime = datetime.strptime(start_timestamp, "%Y-%m-%dT%H:%M:%SZ")
-    end_timestamp_datetime = datetime.strptime(end_timestamp, "%Y-%m-%dT%H:%M:%SZ")
+    timestamp_datetime = datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%SZ")
 
-    trades = session.query(AcceptTrade).filter(
-        and_(AcceptTrade.date_created >= start_timestamp_datetime,
-            AcceptTrade.date_created < end_timestamp_datetime))
+    trades = session.query(AcceptTrade).filter(AcceptTrade.date_created >= timestamp_datetime)
 
     results_list = []
 
@@ -142,7 +135,7 @@ def get_accepted_trades(start_timestamp, end_timestamp):
 
     session.close()
 
-    logger.info("Query for Accepted Trades after %s returns %d results" %(start_timestamp, len(results_list)))
+    logger.info("Query for Accepted Trades after %s returns %d results" %(timestamp, len(results_list)))
 
     return results_list, 200
 

@@ -22,7 +22,13 @@ paths:
       operationId: app.get_posted_trades
       description: Gets posted trades added after a timestamp
       parameters:
-        - name: timestamp
+        - name: start_timestamp
+          in: query
+          description: limits the number of items on a page
+          schema:
+            type: string
+            format: date-time
+        - name: end_timestamp
           in: query
           description: limits the number of items on a page
           schema:
@@ -54,7 +60,13 @@ paths:
       operationId: app.get_accepted_trades
       description: Gets accepted trades added after a timestamp
       parameters:
-        - name: timestamp
+        - name: start_timestamp
+          in: query
+          description: limits the number of items on a page
+          schema:
+            type: string
+            format: date-time
+        - name: end_timestamp
           in: query
           description: limits the number of items on a page
           schema:

@@ -34,7 +34,7 @@ filename = app_config['datastore']['filename']
 period_sec = app_config['scheduler']['period sec']
 url = app_config['eventstore']['url']
 
-DB_ENGINE = create_engine('sqlite:///%s' %app_config["datastore"]["filename"])
+DB_ENGINE = create_engine('sqlite:///%s' %app_config["datastore"]["filename"], echo=True)
 Base.metadata.bind = DB_ENGINE
 DB_SESSION = sessionmaker(bind=DB_ENGINE)
 

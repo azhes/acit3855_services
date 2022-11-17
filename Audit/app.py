@@ -40,6 +40,7 @@ def get_posted_trade(index):
     logger.info(f'Retrieving posted trade at {index}')
     try:
         for msg in consumer:
+            logger.debug(f'Requested message: {consumer[index]}')
             msg_str = msg.value.decode('utf-8')
             msg_json = json.loads(msg_str)
 

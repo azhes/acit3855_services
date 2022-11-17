@@ -45,7 +45,7 @@ def get_posted_trade(index):
             msg_str = msg.value.decode('utf-8')
             msg_json = json.loads(msg_str)
 
-            if msg.offset == index and msg.type == 'posted_trade':
+            if msg.offset == index:
                 return msg_json, 200
 
     except:
@@ -76,7 +76,7 @@ def get_accepted_trade(index):
             msg_str = msg.value.decode('utf-8')
             msg_json = json.loads(msg_str)
 
-            if msg.offset == index and msg.type == 'accepted_trade':
+            if msg.offset == index:
                 return msg_json, 200
 
     except:

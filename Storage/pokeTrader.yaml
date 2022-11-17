@@ -28,12 +28,6 @@ paths:
           schema:
             type: string
             format: date-time
-        - name: end_timestamp
-          in: query
-          description: limits the number of items on a page
-          schema:
-            type: string
-            format: date-time
       responses:
         '200':
           description: Successfully returned a list of trade post events
@@ -61,12 +55,6 @@ paths:
       description: Gets accepted trades added after a timestamp
       parameters:
         - name: start_timestamp
-          in: query
-          description: limits the number of items on a page
-          schema:
-            type: string
-            format: date-time
-        - name: end_timestamp
           in: query
           description: limits the number of items on a page
           schema:

@@ -8,6 +8,8 @@ import logging.config
 from pykafka import KafkaClient
 from pykafka.common import OffsetType
 from flask_cors import CORS, cross_origin
+import math
+from itertools import islice
 
 with open('app_conf.yml', 'r') as f:
     app_config = yaml.safe_load(f.read())
@@ -39,16 +41,30 @@ def get_posted_trade(index):
                                         consumer_timeout_ms=1000)
 
     logger.info(f'Retrieving posted trade at {index}')
-    logger.debug(f'Requested trade: {consumer[index]}')
     try:
-        for msg in consumer:
+        # for msg in consumer:
             
-            msg_str = msg.value.decode('utf-8')
-            msg_json = json.loads(msg_str)
+        #     msg_str = msg.value.decode('utf-8')
+        #     msg_json = json.loads(msg_str)
 
-            # Find the event at the index you want and return code 200
-            if msg == consumer[index]:
-                return msg_json, 200
+        #     # Find the event at the index you want and return code 200
+        #     if msg == consumer[index]:
+        #         return msg_json, 200
+
+        LAST_N_MESSAGES = index
+
+        MAX_PARTITION_REWIND = int(math.ceil(LAST_N_MESSAGES / len(consumer._partitions)))
+
+        offsets = [(p, op.last_offset_consumed - MAX_PARTITION_REWIND)
+           for p, op in consumer._partitions.iteritems()]
+
+        offsets = [(p, (o if o > -1 else -2)) for p, o in offsets]
+
+        consumer.reset_offsets(offsets)
+
+        msg_json = islice(consumer, LAST_N_MESSAGES)
+
+        return msg_json, 200
     except:
         logger.error("No more messages found")
 

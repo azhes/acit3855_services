@@ -69,18 +69,21 @@ def get_accepted_trade(index):
     There is a risk that this loop never stops if the index
     is large and messages are constantly being received. """
 
-    consumer = topic.get_simple_consumer(reset_offset_on_start=True,
+    consumer = topic.get_simple_consumer(consumer_group=b'event_group',
+                                        reset_offset_on_start=True,
                                         consumer_timeout_ms=1000)
 
     logger.info(f'Retrieving accepted trade at {index}')
     try:
-        for msg in consumer:
-            msg_str = msg.value.decode('utf-8')
-            msg_json = json.loads(msg_str)
+        msg = consumer.consume(index)
+        
+        msg_str = msg.value.decode('utf-8')
+        msg_json = json.loads(msg_str)
+        logger.debug(f'Requested message: {json.loads(msg_str)}')
 
-            # Find the event at the index you want and return code 200
-            if msg == consumer[index]:
-                return msg_json, 200
+        # Find the event at the index you want and return code 200
+        return msg_json, 200
+
     except:
         logger.error("No more messages found")
 

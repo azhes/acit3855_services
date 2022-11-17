@@ -36,8 +36,7 @@ def get_posted_trade(index):
     There is a risk that this loop never stops if the index
     is large and messages are constantly being received. """
 
-    consumer = topic.get_simple_consumer(consumer_group=b'event_group',
-                                        reset_offset_on_start=True,
+    consumer = topic.get_simple_consumer(reset_offset_on_start=True,
                                         consumer_timeout_ms=1000)
 
     logger.info(f'Retrieving posted trade at {index}')
@@ -67,8 +66,7 @@ def get_accepted_trade(index):
     There is a risk that this loop never stops if the index
     is large and messages are constantly being received. """
 
-    consumer = topic.get_simple_consumer(consumer_group=b'event_group',
-                                        reset_offset_on_start=True,
+    consumer = topic.get_simple_consumer(reset_offset_on_start=True,
                                         consumer_timeout_ms=1000)
 
     logger.info(f'Retrieving accepted trade at {index}')

@@ -9,20 +9,29 @@ from pykafka import KafkaClient
 from pykafka.common import OffsetType
 from flask_cors import CORS, cross_origin
 import math
+import os
 from itertools import islice
 
-with open('app_conf.yml', 'r') as f:
+if "TARGET_ENV" in os.environ and os.environ["TARGET_ENV"] == "test":
+    print("In Test Environment")
+    app_conf_file = "/config/app_conf.yml"
+    log_conf_file = "/config/log_conf.yml"
+
+with open(app_conf_file, 'r') as f:
     app_config = yaml.safe_load(f.read())
 
 kafka_hostname = app_config['events']['hostname']
 kafka_port = app_config['events']['port']
 kafka_topic = app_config['events']['topic']
 
-with open('log_conf.yml', 'r') as f:
+with open(log_conf_file, 'r') as f:
         log_config = yaml.safe_load(f.read())
         logging.config.dictConfig(log_config)
     
 logger = logging.getLogger('basicLogger')
+
+logger.info(f'App Conf File: {app_conf_file}')
+logger.info(f'Log Conf FIle: {log_conf_file}')
 
 def get_posted_trade(index):
     """ Get posted trade in history """

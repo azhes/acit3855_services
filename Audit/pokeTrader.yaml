@@ -6,8 +6,6 @@ info:
   contact:
     email: agraystone@bcit.ca
   version: 1.0.0
-servers:
-- url: http://localhost:8090
 
 paths:
   /posttrade:

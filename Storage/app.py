@@ -23,8 +23,14 @@ from pykafka.exceptions import SocketDisconnectedError, LeaderNotAvailable
 
 import requests
 import time
+import os
 
-with open('app_conf.yml', 'r') as f:
+if "TARGET_ENV" in os.environ and os.environ["TARGET_ENV"] == "test":
+    print("In Test Environment")
+    app_conf_file = "/config/app_conf.yml"
+    log_conf_file = "/config/log_conf.yml"
+
+with open(app_conf_file, 'r') as f:
     app_config = yaml.safe_load(f.read())
 
 user = app_config['datastore']['user']
@@ -41,11 +47,14 @@ sleep_sec = app_config['datastore']['sleep']
 DB_ENGINE = create_engine(f'mysql+pymysql://{user}:{password}@{hostname}:{port}/{db}')
 DB_SESSION = sessionmaker(bind=DB_ENGINE)
 
-with open('log_conf.yml', 'r') as f:
+with open(log_conf_file, 'r') as f:
         log_config = yaml.safe_load(f.read())
         logging.config.dictConfig(log_config)
     
 logger = logging.getLogger('basicLogger')
+
+logger.info(f'App Conf File: {app_conf_file}')
+logger.info(f'Log Conf FIle: {log_conf_file}')
 
 def post_trade(body):
 

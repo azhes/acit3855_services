@@ -74,6 +74,7 @@ def get_accepted_trade(index):
     logger.info(f'Retrieving accepted trade at {index}')
     try:
         for msg in consumer:
+            logger.debug(msg.offset)
             msg_str = msg.value.decode('utf-8')
             msg_json = json.loads(msg_str)
 

@@ -27,6 +27,10 @@ kafka_topic = app_config['events']['topic']
 with open(log_conf_file, 'r') as f:
         log_config = yaml.safe_load(f.read())
         logging.config.dictConfig(log_config)
+
+filename = log_config['handlers']['file']['filename']
+    
+logging.basicConfig(filename=filename, encoding='utf-8', level=logging.DEBUG)
     
 logger = logging.getLogger('basicLogger')
 

@@ -17,6 +17,7 @@ from post_trade import PostTrade
 from accept_trade import AcceptTrade
 from stats import Stats
 from flask_cors import CORS, cross_origin
+from create_tables import create_tables
 
 import requests
 import os
@@ -37,6 +38,7 @@ url = app_config['eventstore']['url']
 DB_ENGINE = create_engine('sqlite:///%s' %app_config["datastore"]["filename"], echo=True)
 Base.metadata.bind = DB_ENGINE
 DB_SESSION = sessionmaker(bind=DB_ENGINE)
+create_tables()
 
 with open(log_conf_file, 'r') as f:
         log_config = yaml.safe_load(f.read())

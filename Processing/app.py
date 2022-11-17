@@ -9,27 +9,36 @@ import pymysql
 import yaml
 import logging
 import logging.config
+from pykafka import KafkaClient
+from pykafka.common import OffsetType
+from threading import Thread
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from base import Base
 from post_trade import PostTrade
 from accept_trade import AcceptTrade
-from stats import Stats
-from flask_cors import CORS, cross_origin
+
+from pykafka.exceptions import SocketDisconnectedError, LeaderNotAvailable
 
 import requests
-from apscheduler.schedulers.background import BackgroundScheduler
+import time
 
 with open('app_conf.yml', 'r') as f:
-        app_config = yaml.safe_load(f.read())
+    app_config = yaml.safe_load(f.read())
 
-filename = app_config['datastore']['filename']
-period_sec = app_config['scheduler']['period sec']
-url = app_config['eventstore']['url']
+user = app_config['datastore']['user']
+password = app_config['datastore']['password']
+hostname = app_config['datastore']['hostname']
+port = app_config['datastore']['port']
+db = app_config['datastore']['db']
+kafka_hostname = app_config['events']['hostname']
+kafka_port = app_config['events']['port']
+kafka_topic = app_config['events']['topic']
+retries = app_config['datastore']['retries']
+sleep_sec = app_config['datastore']['sleep']
 
-DB_ENGINE = create_engine('sqlite:///%s' %app_config["datastore"]["filename"])
-Base.metadata.bind = DB_ENGINE
+DB_ENGINE = create_engine(f'mysql+pymysql://{user}:{password}@{hostname}:{port}/{db}')
 DB_SESSION = sessionmaker(bind=DB_ENGINE)
 
 with open('log_conf.yml', 'r') as f:
@@ -38,116 +47,145 @@ with open('log_conf.yml', 'r') as f:
     
 logger = logging.getLogger('basicLogger')
 
-def get_stats():
-    """ GET endpoint for /events/stats resource """
+def post_trade(body):
 
-    # Log an INFO message indicating request has started
-    logger.info("Request has started")
-
-    # Read in the current statistics from the SQLite database
     session = DB_SESSION()
-    results = session.query(Stats).order_by(Stats.last_updated.desc())
-    query_results = session.execute(results).fetchall()
 
-    current_statistics = query_results[0][0]
+    logger.info(f'Connecting to DB. Hostname:{hostname}, Port:{port}')
 
-    # Convert the statistics as necessary into a new Python dictionary such that
-    # the structure matches that of your response defined in the openapi.yaml file
-    stats_dict = {'num_posted_trades': current_statistics.num_posted_trades,
-                'num_accepted_trades': current_statistics.num_accepted_trades,
-                'max_posted_trades_level': current_statistics.max_posted_trades_level,
-                'max_accepted_trades_happiness': current_statistics.max_accepted_trades_happiness,
-                'last_updated': current_statistics.last_updated}
+    trade_post = PostTrade(
+        body['trade_id'],
+        body['pokemon_to_trade'],
+        body['pokemon_happiness'],
+        body['pokemon_level'],
+        body['trade_accepted'],
+        body['pokemon_def'],
+        body['pokemon_speed'],
+        body['trace_id']
+    )
 
-    logger.info(f'Request has completed')
-
-    return stats_dict, 200
-
-def populate_stats():
-    """ Periodically update stats """
-    session = DB_SESSION()
-    # Log an INFO message indicating periodic processing has started
-    logger.info("Start Periodic Processing")
-
-    # Read in the current statistics from the SQLite database
-    results = session.query(Stats).order_by(Stats.last_updated.desc())
-    query_results = session.execute(results).fetchall()
-
-    timestamp = query_results[0][0].last_updated
-
-    session.close()
-
-    # Query the two GET endpoints from your data store service to get all new events
-    # from the last datetime you requested them to the current datetime
-    # timestamp_datetime = timestamp.strftime("%Y-%m-%dT%H:%M:%SZ")
-    # debug_timestamp = "2022-09-10T11:16:44Z"
-
-    posted_trades_url = 'http://localhost:8090/posttrade?timestamp=' + timestamp
-
-    posted_trades = requests.get(posted_trades_url)
-    posted_trades_json = posted_trades.json()
-    logger.info(f'{len(posted_trades_json)} trade post events received.')
-    if posted_trades.status_code != 200:
-        logger.error("Did not receive a 200 response code")
-
-    accepted_trades_url = 'http://localhost:8090/accepttrade?timestamp=' + timestamp
-    
-    accepted_trades = requests.get(accepted_trades_url)
-    accepted_trades_json = accepted_trades.json()
-    logger.info(f'{len(accepted_trades_json)} trade accept events received.')
-    if accepted_trades.status_code != 200:
-        logger.error("Did not receive a 200 response code")
-
-    #calculate updated statistics
-    num_posted_trades = len(posted_trades_json) #num_posted_trades
-    num_accepted_trades = len(accepted_trades_json) #num_accepted_trades
-
-    #max_posted_trades_level
-    try:
-        posted_levels = []
-        for trade in posted_trades_json:
-            posted_levels.append(trade['pokemon_level'])
-        max_posted_trades_level = max(posted_levels)
-    except:
-        max_posted_trades_level = 0
-
-    #max_accepted_trades_happiness
-    try:
-        accepted_happinesses = []
-        for trade in accepted_trades_json:
-            accepted_happinesses.append(int(trade['pokemon_happiness']))
-        max_accepted_trades_happiness = max(accepted_happinesses)
-    except:
-        max_accepted_trades_happiness = 0
-
-    #new_stats_dictionary
-    new_stats = {'num_posted_trades': num_posted_trades, 'num_accepted_trades': num_accepted_trades, 'max_posted_trades_level': max_posted_trades_level, 'max_accepted_trades_happiness': max_accepted_trades_happiness, 'last_updated': datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")}
-
-    #write a Stats object to the database
-    session = DB_SESSION()
-    stats = Stats(new_stats['num_posted_trades'], new_stats['num_accepted_trades'], new_stats['max_posted_trades_level'], new_stats['max_accepted_trades_happiness'], new_stats['last_updated'])
-    logger.debug(f'Updated statistics values: {new_stats}')
-
-    session.add(stats)
+    session.add(trade_post)
 
     session.commit()
     session.close()
 
-    #log an info message indicating period processing has ended
-    logger.info(f'Period processing has ended.')
+    trace_id = body['trace_id']
+
+    logger.info(f'Stored event post_trade request with a trace id of {trace_id}')
+
+def get_posted_trades(timestamp):
+    # Gets new posted trades after the timestamp
+    session = DB_SESSION()
+
+    timestamp_datetime = datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%SZ")
+
+    trades = session.query(PostTrade).filter(PostTrade.date_created >= timestamp_datetime)
+
+    results_list = []
+
+    for trade in trades:
+        results_list.append(trade.to_dict())
+
+    session.close()
+
+    logger.info("Query for Posted Trades after %s returns %d results" %(timestamp, len(results_list)))
+
+    return results_list, 200
+
+def accept_trade(body):
+
+    # create an instance of the event using SQLAlchemy declarative
+    # object should be added and committed to db session
+    # create and close the session
+
+    session = DB_SESSION()
+
+    trade_accept = AcceptTrade(
+        body['accepted_trade_id'],
+        body['pokemon_to_accept'],
+        body['username'],
+        body['pokemon_atk'],
+        body['pokemon_happiness'],
+        body['pokemon_hp'],
+        body['pokemon_level'],
+        body['trace_id']
+    )
+
+    session.add(trade_accept)
+
+    session.commit()
+    session.close()
+
+    trace_id = body['trace_id']
+
+    logger.info(f'Stored event accept_trade request with a trace id of {trace_id}')
+
+def get_accepted_trades(timestamp):
+    # Gets new posted trades after the timestamp
+    session = DB_SESSION()
+
+    timestamp_datetime = datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%SZ")
+
+    trades = session.query(AcceptTrade).filter(AcceptTrade.date_created >= timestamp_datetime)
+
+    results_list = []
+
+    for trade in trades:
+        results_list.append(trade.to_dict())
+
+    session.close()
+
+    logger.info("Query for Accepted Trades after %s returns %d results" %(timestamp, len(results_list)))
+
+    return results_list, 200
+
+def process_messages():
+    """ Process event messages """
+
+    hostname = f'{kafka_hostname}:{kafka_port}'
+
+    retry_count = 0
+    while retry_count < retries:
+        logger.info(f'Trying to connect to Kafka. Retries: {retry_count}')
+        try:
+            client = KafkaClient(hosts=hostname)
+            topic = client.topics[str.encode(kafka_topic)]
+            consumer = topic.get_simple_consumer(consumer_group=b'event_group',
+                                        reset_offset_on_start=False,
+                                        auto_offset_reset=OffsetType.LATEST)
+
+            # This is blocking - it will wait for a new message
+            for msg in consumer:
+                msg_str = msg.value.decode('utf-8')
+                msg = json.loads(msg_str)
+                logger.info(f'Message: {msg}')
+
+                payload = msg['payload']
+                logger.info(f'Payload: {payload}')
+
+                if msg['type'] == "posted_trade":
+                    post_trade(payload)
+                elif msg['type'] == "accepted_trade":
+                    accept_trade(payload)
+
+                consumer.commit_offsets()
+        except:
+            logger.error(f'Connection failed.')
+            time.sleep(sleep_sec)
+            retry_count += 1
 
 
-def init_scheduler():
-    sched = BackgroundScheduler(daemon=True)
-    sched.add_job(populate_stats, 'interval', seconds=period_sec)
+    # Create a consume on a consumer group, that only reads new messages
+    # (uncommitted mesages) when the service re-starts (i.e., it doesn't
+    #  read all the old messages from the history in the message queue).
 
-    sched.start()
+    
 
 app = connexion.FlaskApp(__name__, specification_dir='')
-CORS(app.app)
-app.app.config['CORS_HEADERS'] = 'Content-Type'
 app.add_api('pokeTrader.yaml', strict_validation=True, validate_responses=True)
 
 if __name__ == '__main__':
-    init_scheduler()
-    app.run(port=8100)
+    t1 = Thread(target=process_messages)
+    t1.setDaemon(True)
+    t1.start()
+    app.run(port=8090)

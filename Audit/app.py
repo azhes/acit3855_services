@@ -59,7 +59,7 @@ def get_posted_trade(index):
 
 def get_accepted_trade(index):
     """ Get accepted trade in history """
-    hostname = kafka_hostname
+    hostname = f'{kafka_hostname}:{kafka_port}'
     client = KafkaClient(hosts=hostname)
     topic = client.topics[str.encode(kafka_topic)]
 

@@ -34,10 +34,12 @@ def get_posted_trade(index):
     There is a risk that this loop never stops if the index
     is large and messages are constantly being received. """
 
-    consumer = topic.get_simple_consumer(reset_offset_on_start=True,
+    consumer = topic.get_simple_consumer(consumer_group=b'event_group',
+                                        reset_offset_on_start=True,
                                         consumer_timeout_ms=1000)
 
     logger.info(f'Retrieving posted trade at {index}')
+    logger.debug(f'Requested trade: {consumer[index]}')
     try:
         for msg in consumer:
             
@@ -45,7 +47,8 @@ def get_posted_trade(index):
             msg_json = json.loads(msg_str)
 
             # Find the event at the index you want and return code 200
-            return msg_json, 200
+            if msg == consumer[index]:
+                return msg_json, 200
     except:
         logger.error("No more messages found")
 

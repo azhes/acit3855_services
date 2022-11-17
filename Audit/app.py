@@ -42,14 +42,12 @@ def get_posted_trade(index):
 
     logger.info(f'Retrieving posted trade at {index}')
     try:
-        msg = consumer.consume(index)
-        
-        msg_str = msg.value.decode('utf-8')
-        msg_json = json.loads(msg_str)
-        logger.debug(f'Requested message: {json.loads(msg_str)}')
+        for msg in consumer:
+            msg_str = msg.value.decode('utf-8')
+            msg_json = json.loads(msg_str)
 
-        # Find the event at the index you want and return code 200
-        return msg_json, 200
+            if msg.offset == index:
+                return msg_json, 200
 
     except:
         logger.error("No more messages found")
@@ -75,14 +73,12 @@ def get_accepted_trade(index):
 
     logger.info(f'Retrieving accepted trade at {index}')
     try:
-        msg = consumer.consume(index)
-        
-        msg_str = msg.value.decode('utf-8')
-        msg_json = json.loads(msg_str)
-        logger.debug(f'Requested message: {json.loads(msg_str)}')
+        for msg in consumer:
+            msg_str = msg.value.decode('utf-8')
+            msg_json = json.loads(msg_str)
 
-        # Find the event at the index you want and return code 200
-        return msg_json, 200
+            if msg.offset == index:
+                return msg_json, 200
 
     except:
         logger.error("No more messages found")

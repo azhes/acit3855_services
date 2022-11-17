@@ -45,10 +45,6 @@ def load_config():
         log_config = yaml.safe_load(f.read())
         logging.config.dictConfig(log_config)
 
-    filename = log_config['handlers']['file']['filename']
-    
-    logging.basicConfig(filename=filename, encoding='utf-8', level=logging.DEBUG)
-
     logger = logging.getLogger('basicLogger')
 
     logger.info(f'App Conf File: {app_conf_file}')

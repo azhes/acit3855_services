@@ -49,11 +49,7 @@ DB_SESSION = sessionmaker(bind=DB_ENGINE)
 
 with open(log_conf_file, 'r') as f:
         log_config = yaml.safe_load(f.read())
-        logging.config.dictConfig(log_config)
-
-filename = log_config['handlers']['file']['filename']
-    
-logging.basicConfig(filename=filename, encoding='utf-8', level=logging.DEBUG)
+        logging.config.dictConfig(log_config) 
     
 logger = logging.getLogger('basicLogger')
 

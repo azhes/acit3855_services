@@ -38,7 +38,6 @@ def get_posted_trade(index):
                                         consumer_timeout_ms=1000)
 
     logger.info(f'Retrieving posted trade at {index}')
-    logger.debug(f'Requested message: {consumer[index]}')
     try:
         for msg in consumer:
             

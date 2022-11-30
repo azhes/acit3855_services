@@ -52,6 +52,20 @@ paths:
           description: item created
         "400":
           description: invalid input, object invalid
+  /health:
+    get:
+      tags:
+        - health
+      summary: health endpoint
+      responses:
+        '200':
+          description: service is healthy
+          content:
+            application/json:
+              type: object
+              properties:
+                message:
+                  type: string
 components:
   schemas:
     PostTrade:

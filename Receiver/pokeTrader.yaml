@@ -63,12 +63,9 @@ paths:
         '200':
           description: service is healthy
           content:
-            application/json:
+            text/plain:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
+                type: string
 components:
   schemas:
     PostTrade:

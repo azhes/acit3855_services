@@ -183,6 +183,13 @@ def process_messages():
             time.sleep(sleep_sec)
             retry_count += 1
 
+def health_check():
+    """ Health Check """
+
+    logger.info(f'Health check initiated.')
+
+    return 200
+
 
     # Create a consume on a consumer group, that only reads new messages
     # (uncommitted mesages) when the service re-starts (i.e., it doesn't

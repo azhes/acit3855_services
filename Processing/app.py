@@ -147,6 +147,13 @@ def populate_stats():
     #log an info message indicating period processing has ended
     logger.info(f'Period processing has ended.')
 
+def health_check():
+    """ Health Check """
+
+    logger.info(f'Health check initiated.')
+
+    return 200
+
 
 def init_scheduler():
     sched = BackgroundScheduler(daemon=True)

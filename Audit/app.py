@@ -94,6 +94,13 @@ def get_accepted_trade(index):
     logger.error(f"could not find an accepted trade at index {index}")
     return {"message": "Not Found"}, 404
 
+def health_check():
+    """ Health Check """
+
+    logger.info(f'Health check initiated.')
+
+    return 200
+
 app = connexion.FlaskApp(__name__, specification_dir='')
 #if "TARGET_ENV" not in os.environ or os.environ["TARGET_ENV"] != "test":
 CORS(app.app)

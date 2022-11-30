@@ -109,7 +109,11 @@ def accept_trade(body):
     logger.info(f'Returned event accept_trade response (Id: {trace_id}) with status code 201')
 
     return NoContent, 201
-# end
+
+def health_check():
+    """ Health Check """
+
+    return 200
 
 app = connexion.FlaskApp(__name__, specification_dir='')
 app.add_api('pokeTrader.yaml', base_path="/receiver", strict_validation=True, validate_responses=True)

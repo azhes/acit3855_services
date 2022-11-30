@@ -42,10 +42,11 @@ paths:
           description: service is healthy
           content:
             application/json:
-              type: object
-              properties:
-                message:
-                  type: string
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
 components:
   schemas:
     TradeStats:

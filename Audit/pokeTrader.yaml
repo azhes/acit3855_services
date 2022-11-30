@@ -78,10 +78,7 @@ paths:
       responses:
         '200':
           description: service is healthy
-          content:
-            text/plain:
-              schema:
-                type: string
+          
 components:
   schemas:
     PostTrade:

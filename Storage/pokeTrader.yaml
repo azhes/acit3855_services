@@ -83,6 +83,8 @@ paths:
       tags:
         - health
       summary: health endpoint
+      operationId: app.health_check
+      description: health check
       responses:
         '200':
           description: service is healthy

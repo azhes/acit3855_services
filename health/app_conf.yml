@@ -1,7 +1,7 @@
 version: 1
 datastore:
-  filename: stats.sqlite
+  filename: health.json
 scheduler:
   period sec: 5
 eventstore:
-  url: http://localhost:8090
+  url: http://acit3855kafka.westus3.cloudapp.azure.com

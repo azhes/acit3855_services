@@ -29,7 +29,7 @@ if "TARGET_ENV" in os.environ and os.environ["TARGET_ENV"] == "test":
     log_conf_file = "/config/log_conf.yml"
 
 with open(app_conf_file, 'r') as f:
-        app_config = yaml.safe_load(f.read())
+    app_config = yaml.safe_load(f.read())
 
 filename = app_config['datastore']['filename']
 period_sec = app_config['scheduler']['period sec']

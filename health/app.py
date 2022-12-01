@@ -61,7 +61,7 @@ def health_check():
                             "storage": storage_health,
                             "processing": processing_health,
                             "audit": audit_health,
-                            "last_update": datetime.now()
+                            "last_update": str(datetime.now())
                             }
                             ]
                         }

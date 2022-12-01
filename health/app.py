@@ -36,15 +36,27 @@ def health_check():
 
     logger.info("Start Periodic Health Check")
 
-    receiver = requests.get(f"{url}/receiver/health", timeout=5)
-    storage = requests.get(f"{url}/storage/health", timeout=5)
-    processing = requests.get(f"{url}/processing/health", timeout=5)
-    audit = requests.get(f"{url}/audit_log/health", timeout=5)
+    receiver_health = "Running"
+    storage_health = "Running"
+    processing_health = "Running"
+    audit_health = "Running"
 
-    receiver_health = "Down"
-    storage_health = "Down"
-    processing_health = "Down"
-    audit_health = "Down"
+    try:
+        receiver = requests.get(f"{url}/receiver/health", timeout=5)
+    except:
+        receiver_health = "Down"
+    try:
+        storage = requests.get(f"{url}/storage/health", timeout=5)
+    except:
+        storage_health = "Down"
+    try:
+        processing = requests.get(f"{url}/processing/health", timeout=5)
+    except:
+        processing_health = "Down"
+    try:
+        audit = requests.get(f"{url}/audit_log/health", timeout=5)
+    except:
+        audit_health = "Down"      
 
     if receiver.status_code == 200:
         receiver_health = "Running"

@@ -67,6 +67,7 @@ def health_check():
                         }
 
     logger.info('Health status of all services retrieved.')
+    logger.debug(health_check_json)
 
     json_string = json.dumps(health_check_json)
 

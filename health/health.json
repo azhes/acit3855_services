@@ -1,0 +1,10 @@
+{"health_checks:": [
+    {
+    "receiver": "Running",
+    "storage": "Running",
+    "processing": "Running",
+    "audit": "Running",
+    "last_update": "2022-12-01 03:26:26.768164"
+    }
+    ]
+}

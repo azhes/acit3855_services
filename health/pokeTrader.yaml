@@ -38,11 +38,11 @@ components:
   schemas:
     HealthCheck:
       required:
-        - receiver
-        - storage
-        - processing
-        - audit
-        - last_update
+      - receiver
+      - storage
+      - processing
+      - audit
+      - last_update
       properties:
         receiver:
           type: string

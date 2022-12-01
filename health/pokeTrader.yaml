@@ -9,6 +9,7 @@ info:
 servers:
 - url: http://localhost:8120
 paths:
+  /health:
     get:
       tags:
         - health

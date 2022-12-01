@@ -9,7 +9,7 @@ export default function HealthCheck() {
     const [index, setIndex] = useState(null);
 
     const getAudit = () => {
-        fetch(`http://acit3855kafka.westus3.cloudapp.azure.com/health`)
+        fetch(`http://acit3855kafka.westus3.cloudapp.azure.com/health/health`)
             .then(res => res.json())
             .then((result)=>{
 				console.log("Received Health Checks")

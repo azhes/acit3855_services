@@ -18,8 +18,34 @@ paths:
       description: health check
       responses:
         '200':
-          description: service is healthy
+          description: Successfully returned a list of health checks
           content:
-            text/plain:
+            application/json:
               schema:
-                type: string
+                type: object
+                items:
+                  $ref: '#/components/schemas/HealthCheck'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+components:
+  schemas:
+    HealthCheck:
+      required:
+        - receiver:
+          type: string
+        - storage:
+          type: string
+        - processing:
+          type: string
+        - audit:
+          type: string
+        - last_update:
+          type: string
+      type: object

@@ -38,14 +38,20 @@ components:
   schemas:
     HealthCheck:
       required:
-        - receiver:
+        - receiver
+        - storage
+        - processing
+        - audit
+        - last_update
+      properties:
+        receiver:
           type: string
-        - storage:
+        storage:
           type: string
-        - processing:
+        processing:
           type: string
-        - audit:
+        audit:
           type: string
-        - last_update:
+        last_update:
           type: string
       type: object

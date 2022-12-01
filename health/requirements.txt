@@ -1,9 +1,6 @@
 connexion
 swagger-ui-bundle
 APScheduler
-sqlalchemy
 pyyaml
 requests
-mysql-connector-python
-pymysql
 flask-cors

@@ -10,7 +10,6 @@ from apscheduler.schedulers.background import BackgroundScheduler
 import requests
 from datetime import datetime
 
-from base import Base
 from flask_cors import CORS, cross_origin
 
 if "TARGET_ENV" in os.environ and os.environ["TARGET_ENV"] == "test":

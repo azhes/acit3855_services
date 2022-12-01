@@ -71,7 +71,7 @@ def health_check():
 
     json_string = json.dumps(health_check_json)
 
-    with open(filename, 'w') as f:
+    with open(filename, 'r+') as f:
         data = json.load(f)
         data["health_checks"].append(json_string)
         f.seek(0)

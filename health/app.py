@@ -79,7 +79,7 @@ def health_check():
     
     logger.info('Health check written to JSON')
 
-    return json_string
+    return health_check_json
     
 
 def init_scheduler():

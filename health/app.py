@@ -58,15 +58,6 @@ def health_check():
     except:
         audit_health = "Down"      
 
-    if receiver.status_code == 200:
-        receiver_health = "Running"
-    if storage.status_code == 200:
-        storage_health = "Running"
-    if processing.status_code == 200:
-        processing_health = "Running"
-    if audit.status_code == 200:
-        audit_health = "Running"
-
     health_check_json = {"health_checks:": [
                             {
                             "receiver": receiver_health,

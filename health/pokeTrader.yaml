@@ -1,38 +1,14 @@
 ---
 openapi: 3.0.0
 info:
-  title: Stats API
-  description: This API provides event stats.
+  title: Health API
+  description: This API provides health monitoring
   contact:
     email: agraystone@bcit.ca
   version: 1.0.0
 servers:
-- url: http://localhost:8100
+- url: http://localhost:8120
 paths:
-  /stats:
-    get:
-      summary: Gets the event stats
-      operationId: app.get_stats
-      description: Gets posted and accepted trade processed statistics
-      responses:
-        '200':
-          description: Successfully returned a list of trade events
-          content:
-            applicatoin/json:
-              schema:
-                type: object
-                items:
-                  $ref: '#/components/schemas/TradeStats'
-        '400':
-          description: Invalid request
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-  /health:
     get:
       tags:
         - health
@@ -46,25 +22,3 @@ paths:
             text/plain:
               schema:
                 type: string
-components:
-  schemas:
-    TradeStats:
-      required:
-      - num_posted_trades
-      - num_accepted_trades
-      - max_posted_trades_level
-      - max_accepted_trades_happiness
-      properties:
-        num_posted_trades:
-          type: integer
-          example: 100
-        num_accepted_trades:
-          type: integer
-          example: 50
-        max_posted_trades_level:
-          type: integer
-          example: 100
-        max_accepted_trades_happiness:
-          type: integer
-          example: 50
-      type: object
